@@ -28,41 +28,9 @@ namespace parsing {
         return true;
     }
 
-    const std::string recognizedOperators = "-+/*()";
-    const std::string recognizedSymbols = recognizedOperators + "abcdefghijklmnopqrstuvwxyz" + " " + "1234567890" + ",";
     const std::string recognized_non_number_tokens[12] = {"min","max","abs","pow","(",")","-","+","/","*",",","Negative"};
     const int recognized_non_number_tokens_count = 12;
 
-    bool isprelastnonblanksymbolacommaordoesntexist(int curindex, std::string input) {
-        for (int i = curindex - 1; i >= 0; --i) {
-
-            if (input[i] != ',' && input[i] != ' ') {
-                return false;
-            }
-
-            if (input[i] == ',') {
-                return true;
-            }
-
-        }
-        return true;
-    }
-
-
-    bool isprelastnonblanksymbolaopeningbracket(int curindex, std::string input) {
-        for (int i = curindex - 1; i >= 0; --i) {
-
-            if (input[i] != '(' && input[i] != ' ') {
-                return false;
-            }
-
-            if (input[i] == '(') {
-                return true;
-            }
-
-        }
-        return false;
-    }
     bool is_string_in_recognized_non_number_tokens(std::string token) {
 
         for (int i = 0; i < recognized_non_number_tokens_count;++i) {
@@ -345,6 +313,14 @@ namespace parsing {
 
 };
 
+void printstringlist(std::list < std::string > list) {
+    for (std::list < std::string >::iterator i = list.begin(); i != list.end(); ++i) {
+        std::cout << " " << *i;
+    }
+    std::cout << "\n";
+
+}
+
 
 
 int main()
@@ -354,39 +330,30 @@ int main()
 
     std::list < std::string > output = parsing::BasicParsing(input);
 
-    for (std::list < std::string >::iterator i = output.begin(); i != output.end(); ++i) {
-        std::cout << " " << *i;
-    }
-    std::cout << "\n";
+   // printstringlist(output);
 
     output = parsing::detect_and_change_all_unary_minuses(output);
 
-    for (std::list < std::string >::iterator i = output.begin(); i != output.end(); ++i) {
-        std::cout << " " << *i;
-    }
-    std::cout << "\n";
+   // printstringlist(output);
 
     output = parsing::delete_commas(output);
 
-    for (std::list < std::string >::iterator i = output.begin(); i != output.end(); ++i) {
-        std::cout << " " << *i;
-    }
-    std::cout << "\n";
+   // printstringlist(output);
 
     std::unordered_map<std::string, int> context;
 
     std::queue<std::string> q = parsing::ConvertToReversePolishNotation(output);
     
-    std::queue<std::string> newq;
+    /*std::queue<std::string> newq;
     while (q.size() > 0) {
         std::cout << q.front() << " ";
         newq.push(q.front());
         q.pop();
     }
 
-    std::cout << "\n";
+    std::cout << "\n";*/
 
-    std::cout << parsing::Calculate(newq, context);
+    std::cout << parsing::Calculate(q, context);
 
     return 0;
 }
