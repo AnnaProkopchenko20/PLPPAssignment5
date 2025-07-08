@@ -35,7 +35,16 @@ namespace parsing {
     private:
         std::unordered_map<std::string, int> variables;
         std::unordered_map<std::string, func_info* > functions;
+        std::unordered_map<std::string, int> extra_temp_variables;
 
+       bool isStringInStringList(std::string str, std::list<std::string> list ) {
+           for (std::list<std::string>::iterator i = list.begin(); i != list.end();++i) {
+               if (*i == str) {
+                   return true;
+               }
+            }
+           return false;
+        }
 
         bool IsStringNumber(std::string str) {
 
@@ -51,8 +60,8 @@ namespace parsing {
             return true;
         }
 
-        const std::string unary_operations[2] = { "abs","Negative" };
-        const std::string binary_operations[7] = { "min","max","pow", "/", "*" ,"+","-" };
+        const std::list<std::string> unary_operations = { "abs","Negative" };
+        const std::list<std::string> binary_operations = { "min","max","pow", "/", "*" ,"+","-" };
 
         const std::string recognized_non_number_tokens[12] = { "min","max","abs","pow","(",")","-","+","/","*",",","Negative" };
         const int recognized_non_number_tokens_count = 12;
@@ -75,7 +84,7 @@ namespace parsing {
         
 
         bool is_string_in_recognized_non_number_tokens(std::string token) {
-            if (variables.contains(token) || functions.contains(token)) {
+            if (variables.contains(token) || functions.contains(token) || extra_temp_variables.contains(token)) {
                 return true;
             }
 
@@ -210,7 +219,7 @@ namespace parsing {
 
                 curtoken = *i;
 
-                if (IsStringNumber(curtoken) || variables.contains(curtoken)) {
+                if (IsStringNumber(curtoken) || variables.contains(curtoken) || extra_temp_variables.contains(curtoken)) {
                     q.push(curtoken);
                     continue;
                 }
@@ -252,6 +261,15 @@ namespace parsing {
                 q.push(s.top());
                 s.pop();
             }
+
+           /* std::queue<std::string> newq;
+            while (q.size() > 0) {
+                std::cout << q.front() << " ";
+                newq.push(q.front());
+                q.pop();
+            }
+
+            std::cout << "\n";*/
 
             return q;
 
@@ -315,10 +333,10 @@ namespace parsing {
                     numbersStack.push(std::stoi(curtoken));
                 }
                 else if (curvariables.contains(curtoken)) {
-                    numbersStack.push(variables[curtoken]);
+                    numbersStack.push(curvariables[curtoken]);
                 }
                 else {
-                    if (unary_operations->contains(curtoken)) {
+                    if (isStringInStringList(curtoken,unary_operations)) {
 
                         int num = numbersStack.top();
                         numbersStack.pop();
@@ -326,7 +344,7 @@ namespace parsing {
                         numbersStack.push(result);
 
                     }
-                    else if (binary_operations->contains(curtoken)) {
+                   else if (isStringInStringList(curtoken, binary_operations)) {
 
                         int rightnum = numbersStack.top();
                         numbersStack.pop();
@@ -346,7 +364,7 @@ namespace parsing {
                             numbersStack.pop();
                         }
                        
-                        int result = сalculate_rpn_expression(functions[curtoken]->rpn,newcurvariables);
+                        int result = сalculate_rpn_expression(std::queue<std::string> (functions[curtoken]->rpn), newcurvariables);
                         numbersStack.push(result);
                     }
                 }
@@ -438,15 +456,6 @@ namespace parsing {
                 for (int i = 0; i < input.size(); ++i) {
                     cursymbol = input[i];
 
-                    if (cursymbol == '=') {
-                        break;
-                    }
-                    variable_name.push_back(cursymbol);
-                }
-
-                for (int i = 0; i < input.size(); ++i) {
-                    cursymbol = input[i];
-
                     if (cursymbol == ' ') {
                         continue;
                     }
@@ -520,27 +529,37 @@ namespace parsing {
 
                 for (int i = 0; i < expresion_with_curly_braces.size(); ++i) {
                     if (expresion_with_curly_braces[i] == '{' || expresion_with_curly_braces[i] == '}') {
-                        expresion_with_curly_braces.erase(i);
+                        expresion_with_curly_braces.erase(i,1);
                     }
                 }
 
-                std::list < std::string > parsed = parse_expression(expresion_with_curly_braces);
-
-                std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
-
                 func_info* info = new func_info;
-                info->rpn = q;
-                std::string parameters = input.substr(func_name_end_index + 1, closing_brace_index - func_name_end_index);
-
+            
+                std::string parameters = input.substr(func_name_end_index + 2, closing_brace_index - func_name_end_index - 2);
+                for (int i = 0; i < parameters.size();++i) {
+                    if (parameters[i] == ' ') {
+                        parameters.erase(i, 1);
+                    }
+                }
+                
                 const char* del = ",";
 
                 char* t = strtok((char*)parameters.c_str(), del);
 
                 while (t != nullptr) {
+                    
                     info->param_names.push_back(t);
+                    extra_temp_variables[std::string(t)] = 0;
                     t = strtok(nullptr, del);
                 }
                 
+                std::list < std::string > parsed = parse_expression(expresion_with_curly_braces);
+
+                std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
+                info->rpn = q;
+
+                extra_temp_variables.clear();
+
                 std::string func_name = input.substr(func_name_start_index, func_name_end_index - func_name_start_index + 1);
                 functions[func_name] = info;
                 return 0;
@@ -564,7 +583,7 @@ int main()
     parsing::Interpreter* i = new parsing::Interpreter();
     i->start();
     delete i;
-
+    //for some reason contains doesn't work
     return 0;
 }
 
