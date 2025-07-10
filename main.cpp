@@ -386,6 +386,14 @@ namespace parsing {
             return output;
         }
 
+        void erase_white_space_from_string(std::string& str) {
+            for (int i = 0; i < str.size();++i) {
+                if (str[i] == ' ') {
+                    str.erase(i, 1);
+                }
+            }
+        }
+
         std::queue<std::string> turn_parsed_expression_into_computable(std::list < std::string > parsed) {
 
             if (!check_if_all_tokens_are_recognized(parsed)) {
@@ -404,7 +412,101 @@ namespace parsing {
 
         }
 
+        void parse_function_definition_input(std::string input){
 
+            int func_name_start_index = -1;
+            std::string curtoken;
+            char cursymbol;
+
+            for (int i = 0; i < input.size(); ++i) {
+                cursymbol = input[i];
+                if (cursymbol == ' ') {
+                    continue;
+                }
+
+                if (curtoken == "def") {
+                    curtoken.clear();
+                    func_name_start_index = i;
+                    break;
+                }
+                curtoken.push_back(cursymbol);
+            }
+
+            int closing_brace_index = input.find(')');
+            int opening_brace_index = input.find('(');
+            int func_name_end_index = opening_brace_index - 1;
+
+
+            std::string expresion_with_curly_braces = input.substr(closing_brace_index + 1, input.size() - closing_brace_index - 1);
+            
+
+            for (int i = 0; i < expresion_with_curly_braces.size(); ++i) {
+                if (expresion_with_curly_braces[i] == '{' || expresion_with_curly_braces[i] == '}') {
+                    expresion_with_curly_braces.erase(i, 1);
+                }
+            }
+
+            func_info* info = new func_info;
+
+            std::string parameters = input.substr(opening_brace_index + 1, closing_brace_index - opening_brace_index - 1);
+            erase_white_space_from_string(parameters);
+
+            const char* del = ",";
+
+            char* t = strtok((char*)parameters.c_str(), del);
+
+            while (t != nullptr) {
+
+                info->param_names.push_back(t);
+                extra_temp_variables[std::string(t)] = 0;
+                t = strtok(nullptr, del);
+            }
+
+            std::list < std::string > parsed = parse_expression(expresion_with_curly_braces);
+
+            std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
+            info->rpn = q;
+
+            extra_temp_variables.clear();
+
+            std::string func_name = input.substr(func_name_start_index, func_name_end_index - func_name_start_index + 1);
+            erase_white_space_from_string(func_name);
+            functions[func_name] = info;
+        }
+
+        void parse_variable_definition_input(std::string input) {
+            std::string variable_name;
+            char cursymbol;
+            int assigning_index = -1;
+
+            for (int i = 0; i < input.size(); ++i) {
+                cursymbol = input[i];
+
+                if (cursymbol == ' ') {
+                    continue;
+                }
+
+                if (cursymbol == '=') {
+                    assigning_index = i;
+                    break;
+                }
+
+                if (variable_name == "var") {
+                    variable_name.clear();
+                }
+                variable_name.push_back(cursymbol);
+            }
+
+            if (assigning_index == -1) {
+                std::cout << "syntax error";
+                exit(-1);
+            }
+
+            std::string expression = input.substr(assigning_index + 1, input.size() - assigning_index - 1);
+            std::list < std::string > parsed = parse_expression(expression);
+            std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
+            variables[variable_name] = сalculate_rpn_expression(q, variables);
+        }
         ///func definition f has def keyword
         ///variable definition v has var keyword
         ///expressions e
@@ -448,121 +550,13 @@ namespace parsing {
             }
 
             if (result == 'v') {
-
-                std::string variable_name;
-                char cursymbol;
-                int assigning_index = -1;
-
-                for (int i = 0; i < input.size(); ++i) {
-                    cursymbol = input[i];
-
-                    if (cursymbol == ' ') {
-                        continue;
-                    }
-
-                    if (cursymbol == '=') {
-                        assigning_index = i;
-                        break;
-                    }
-
-                    if (variable_name == "var") {
-                        variable_name.clear();
-                    }
-                    variable_name.push_back(cursymbol);
-                }
-
-                if (assigning_index == -1) {
-                    std::cout << "syntax error";
-                    exit(-1);
-                }
-
-                std::string expression = input.substr(assigning_index + 1, input.size() - assigning_index - 1); 
-                std::list < std::string > parsed = parse_expression(expression);
-                std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
-                variables[variable_name]  = сalculate_rpn_expression(q, variables);
-                return 0;
+                parse_variable_definition_input(input);
+                
             }
 
             if(result == 'f') {
-
-                std::string curtoken;
-                char cursymbol;
-                int func_name_start_index = -1;
-                int func_name_end_index = -1;
-
-                for (int i = 0; i < input.size(); ++i) {
-                    cursymbol = input[i];
-
-                    if (cursymbol == ' ') {
-                        func_name_start_index = i + 1;
-                        continue;
-                    }
-
-                    if (cursymbol == '(') {
-                        func_name_end_index = i - 1;
-                        break;
-                    }
-                     
-                    if (curtoken == "def") {
-                        curtoken.clear();
-                    }
-                    curtoken.push_back(cursymbol);
-                }
-
-                if (func_name_end_index == -1 || func_name_start_index == -1 || func_name_start_index > input.size()) {
-                    std::cout << "syntax error";
-                    exit(-1);
-                }
-
-                
-                int closing_brace_index = -1;
-                
-                for (int i = 0; i < input.size(); ++i) {
-                    cursymbol = input[i];
-                    if (cursymbol == ')') {
-                        closing_brace_index = i;
-                        break;
-                    }
-                }
+                parse_function_definition_input(input);
                
-                std::string expresion_with_curly_braces = input.substr(closing_brace_index + 1, input.size() - closing_brace_index - 1);
-
-                for (int i = 0; i < expresion_with_curly_braces.size(); ++i) {
-                    if (expresion_with_curly_braces[i] == '{' || expresion_with_curly_braces[i] == '}') {
-                        expresion_with_curly_braces.erase(i,1);
-                    }
-                }
-
-                func_info* info = new func_info;
-            
-                std::string parameters = input.substr(func_name_end_index + 2, closing_brace_index - func_name_end_index - 2);
-                for (int i = 0; i < parameters.size();++i) {
-                    if (parameters[i] == ' ') {
-                        parameters.erase(i, 1);
-                    }
-                }
-                
-                const char* del = ",";
-
-                char* t = strtok((char*)parameters.c_str(), del);
-
-                while (t != nullptr) {
-                    
-                    info->param_names.push_back(t);
-                    extra_temp_variables[std::string(t)] = 0;
-                    t = strtok(nullptr, del);
-                }
-                
-                std::list < std::string > parsed = parse_expression(expresion_with_curly_braces);
-
-                std::queue<std::string> q = convert_to_reverse_polish_notation(parsed);
-                info->rpn = q;
-
-                extra_temp_variables.clear();
-
-                std::string func_name = input.substr(func_name_start_index, func_name_end_index - func_name_start_index + 1);
-                functions[func_name] = info;
-                return 0;
             }
             return 0;
         }
@@ -583,7 +577,7 @@ int main()
     parsing::Interpreter* i = new parsing::Interpreter();
     i->start();
     delete i;
-    //for some reason contains doesn't work
+
     return 0;
 }
 
