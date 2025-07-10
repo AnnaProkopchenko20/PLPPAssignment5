@@ -61,10 +61,34 @@ bool Interpreter::is_string_in_recognized_non_number_tokens(std::string token) {
     return false;
 }
 
+std::list <std::string> split(std::string input) {
+    char cursymbol;
+    std::string curtoken;
+    std::list < std::string > tokens;
+    for (int i = 0; i < input.size(); ++i) {
+        cursymbol = input[i];
+        if (cursymbol == ' ' || cursymbol == ',' || cursymbol == '(' || cursymbol == ')' || cursymbol == '-' || cursymbol == '+' || cursymbol == '/' || cursymbol == '*') {
+            if (curtoken.size() > 0) {
+                tokens.push_back(curtoken);
+                curtoken.clear();
+            }
+            if (cursymbol != ' ') {
+                tokens.push_back(std::string(1,cursymbol));
+            }
+            continue;
+        }
+        curtoken.push_back(cursymbol);
+    }
+    if (curtoken.size() > 0) {
+        tokens.push_back(curtoken);
+        curtoken.clear();
+    }
+    return tokens;
+}
 
 std::list < std::string > Interpreter::basic_parsing(std::string input) {//split into numbers functions and operators ignore blankspace and comma
 
-    char cursymbol;
+    /*char cursymbol;
     std::string curtoken;
     std::list < std::string > tokens;
     for (size_t i = 0; i < input.size(); ++i) {
@@ -102,8 +126,10 @@ std::list < std::string > Interpreter::basic_parsing(std::string input) {//split
     if (curtoken.size() > 0) {
         tokens.push_back(curtoken);
         curtoken.clear();
-    }
-    return tokens;
+    }*/
+
+
+    return split(input);
 }
 
 std::list < std::string > Interpreter::detect_and_change_all_unary_minuses(std::list < std::string > tokens) {
@@ -338,7 +364,7 @@ int Interpreter::calculate_rpn_expression(std::queue<std::string> expressionInRp
 
 std::list < std::string > Interpreter::parse_expression(std::string input) {
     std::list < std::string > output = basic_parsing(input);
-    // printstringlist(output);
+    //printstringlist(output);
 
     output = detect_and_change_all_unary_minuses(output);
 

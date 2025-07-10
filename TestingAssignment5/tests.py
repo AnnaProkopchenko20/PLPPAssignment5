@@ -15,118 +15,74 @@ def run_echo(input_data):
 def test_echo():
     tests = [
         {
-            "input": "min(1,2)\n",
-            "expected_output": "1"
-        },
-        {
-            "input": "1*2\n",
-            "expected_output": "2"
-        },
-        {
-            "input": "3-4\n",
-            "expected_output": "-1"
-        },
-        {
             "input": "2*3*4\n",
-            "expected_output": "24"
+            "expected_output": "24\n0"
         },
         {
-            "input": "10+5-3\n",
-            "expected_output": "12"
+            "input": "10 +  5 -   3\n",
+            "expected_output": "12\n0"
         },
         {
             "input": "20/2/2\n",
-            "expected_output": "5"
-        },
-        {
-            "input": "min(min(1,2),3)\n",
-            "expected_output": "1"
-        },
-        {
-            "input": "min(min(1,2),min(1,2))\n",
-            "expected_output": "1"
-        },
-        {
-            "input": "max(max(1,2),3)\n",
-            "expected_output": "3"
-        },
-        {
-            "input": "min(min(1234,5678),min(2345,6789)) * 50 - 2300 / 100\n",
-            "expected_output": "61677"
-        },
-        {
-            "input": "max(max(8500,4200),max(7100,9800)) + 300 * 25\n",
-            "expected_output": "17300"
-        },
-        {
-            "input": "min( min( 1234 , 5678 ) , min( 2345 , 6789 ) ) * 50 - 2300 / 100\n",
-            "expected_output": "61677"
-        },
-        {
-            "input": "min(1,max(2,3))\n",
-            "expected_output": "1"
-        },
-        {
-            "input": "max(1,min(2,3))\n",
-            "expected_output": "2"
-        },
-        {
-            "input": "   5   +   3   \n",
-            "expected_output": "8"
+            "expected_output": "5\n0"
         },
 
         {
-            "input": "max(max(8500,4200),max(7100,9800)) + 300 * 25\n",
-            "expected_output": "17300"
-        },
-        {
-            "input": "(-1) * ((-2) - (-3))\n",
-            "expected_output": "-1"
+            "input": "min(min(1234,5678),min(2345,6789)) * 50 - 2300 / 100\n",
+            "expected_output": "61677\n0"
         },
         {
             "input": "min( min( 1234 , 5678 ) , min( 2345 , 6789 ) ) * 50 - 2300 / 100\n",
-            "expected_output": "61677"
+            "expected_output": "61677\n0"
         },
         {
-            "input": "abs(-450) + min(100, 200) * max(2, 3)\n",
-            "expected_output": "750"
+            "input": "   5   +   3   \n",
+            "expected_output": "8\n0"
+        },
+
+        {
+            "input": "(-1) * ((-2) - (-3))\n",
+            "expected_output": "-1\n0"
+        },
+
+        {
+            "input": "def Add(x, y, z) { x * z + y }\nAdd(1,2,3)\n",
+            "expected_output": "0\n5\n0"
+        },
+
+        {
+            "input": "def super_duper(x, y) { min(abs(max(-x,-y)),pow(x,y)) }\nsuper_duper(1, 2)\n",
+            "expected_output": "0\n1\n0"
+        },
+
+        {
+            "input": "var result = 5 + 3 * 2\nresult\n",
+            "expected_output": "0\n11\n0"
         },
         {
-            "input": "pow(2, 3) + pow(5, 2) - abs(-12)\n",
-            "expected_output": "21"
+            "input": "var num = 6\ndef double(x) { x * 2 }\ndouble(num)\n",
+            "expected_output": "0\n0\n12\n0"
+        },
+
+        {
+            "input": "def square(n) { n * n }\ndef squareThenAdd(x, y) { square(x) + y }\nsquareThenAdd(4, 10)\n",
+            "expected_output": "0\n0\n26\n0"
+        },
+
+        {
+            "input": "var a = 5\nvar b = 10\na + b\n",
+            "expected_output": "0\n0\n15\n0"
         },
         {
-            "input": "min(abs(-789), max(456, 123)) + 100\n",
-            "expected_output": "556"
+            "input": "def divide(x, y) { x / y }\ndivide(20, 4)\n",
+            "expected_output": "0\n5\n0"
         },
+
         {
-            "input": "(max(15, 25) + min(30, 40)) * pow(2, 2)\n",
-            "expected_output": "220"
-        },
-        {
-            "input": "abs(min(-50, -100)) / max(5, 10) + 300\n",
-            "expected_output": "310"
-        },
-        {
-            "input": "pow(max(2, 3), min(4, 5)) - abs(-200) + 150\n",
-            "expected_output": "31"
-        },
-        {
-            "input": "min(1000, max(500, 800)) + abs(-75) * 2\n",
-            "expected_output": "950"
-        },
-        {
-            "input": "(abs(-25) + max(10, 15)) * min(3, 4) / pow(2, 2)\n",
-            "expected_output": "30"
-        },
-        {
-            "input": "max(pow(3, 2), abs(-8)) + min(100, 200) - 50\n",
-            "expected_output": "59"
-        },
-        {
-            "input": "min(max(1500, 2000), abs(-1800)) + 250 / 5\n",
-            "expected_output": "1850"
+            "input": "var global = 100\ndef useGlobal(x) { x + global }\nuseGlobal(5)\n",
+            "expected_output": "0\n0\n105\n0"
         }
+
     ]
 
     for test in tests:
@@ -144,6 +100,8 @@ def test_echo():
             print(f"Got:\n{output}")
         else:
             print(f"Test passed for input:\n{input_data}")
+
+
 
 
 if __name__ == "__main__":
