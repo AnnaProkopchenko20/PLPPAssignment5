@@ -1,11 +1,11 @@
 1 What is an interpreter? It is a program that directly executes code line by line without compiling it first.
 2. What is a declarative programming language? In declarative language you specify the result and not how to get that result.
-3. What is the functional programming paradigm, and what are its key principles? Functional paradign is biul on a concept of high-order functons, avoiding state in program, pure lower-order functions.
+3. What is the functional programming paradigm, and what are its key principles? Functional paradign is built on a concept of high-order functons, avoiding state in program, pure lower-order functions.
 4. Explain the concept of immutability in functional programming and its benefits. Once smth immutable is created it cannot be changed.
 5. How can you create pure functions in Python/Haskell/your language? Just put all of the variables function result depends on in parameters.
 6. What are higher-order functions? Functions that take as argument other functions.
 7. Describe the role of I/O operations in functional programming and how they are typically 
-handled. Examples of i/o operations are reading from files/databeses/user input. This is not goof for functional programming because its stresses the immutability and pure functions and these kind of outpus can change. As far as I understand in functional programming when working with changig data you copy changes and create new immutable object, minimize functions working with such data(encapsulation of sorts).
+handled. Examples of i/o operations are reading from files/databeses/user input. This is not good for functional programming because its stresses the immutability and pure functions and these kind of outpus change. As far as I understand in functional programming when working with changing data you copy changes and create new immutable object, minimize functions working with such data(encapsulation of sorts).
 8. Compare and contrast interpreted languages with compiled languages. Interpreted: execute code line by line, not platform dependent, usually slower because interprets code at runtime Compiled: compiles into binaries and then gets executed, platform-dependent, quite fast.
 
 About this project
